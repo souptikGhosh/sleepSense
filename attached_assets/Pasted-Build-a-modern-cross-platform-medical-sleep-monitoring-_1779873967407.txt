@@ -1,0 +1,201 @@
+Build a modern cross-platform medical sleep-monitoring application using Flutter (preferred) or React Native with a clean futuristic healthcare UI. The application must support real-time streaming sensor data from an ML model/API in JSON format. For development purposes, use a fake/mock REST API or WebSocket server instead of hardcoded values so it can later be replaced seamlessly by the actual ML backend.
+
+The application architecture should be scalable, modular, production-ready, and optimized for real-time rendering of medical telemetry data.
+
+Core Requirements:
+
+* Real-time JSON data fetching/rendering
+* State management
+* Live graph rendering
+* Local storage/database support
+* Responsive UI
+* Dark medical-themed interface
+* Smooth transitions and animations
+* Error handling and reconnect logic
+* Sensor connection status indicators
+
+The app consists of 4 major screens:
+
+1. Authentication Screen
+
+* Login and Sign Up UI
+* Email/password authentication
+* Optional Google authentication UI placeholder
+* Medical-tech styled onboarding screen before login
+* Secure session handling
+* Minimal futuristic healthcare design
+
+2. Profile / Device Status Screen
+   This screen manages user profile and wearable sensor band status.
+
+Features:
+
+* User profile card
+* Sleep statistics summary
+* Connected wearable band status
+* Bluetooth/WiFi connection indicator
+* Sensor diagnostics:
+
+  * SpO2 sensor active/inactive
+  * Heart rate sensor active/inactive
+  * Temperature sensor active/inactive
+  * Motion sensor active/inactive
+* Battery percentage of wearable
+* “Reconnect Device” button
+* “Run Diagnostics” button
+* Device synchronization animation
+* Status color indicators:
+
+  * Green = Working
+  * Yellow = Weak connection
+  * Red = Disconnected/failure
+
+3. Home Dashboard Screen
+   This is the main dashboard after login.
+
+The home screen must display:
+
+* Current/average SpO2 levels
+* Heart Rate levels
+* REM sleep duration
+* Non-REM sleep duration
+* Body temperature
+* Movement levels recorded during last sleep
+
+Include:
+
+* Interactive bar chart for:
+
+  * Daily sleep cycles
+  * Weekly sleep cycles
+  * Monthly sleep cycles
+* Toggle buttons to switch between daily/weekly/monthly analytics
+* Dynamic average SpO2 calculation based on selected timeframe
+* Sleep quality score card
+* Sleep insights section
+* Emergency indicator card if abnormal vitals detected
+
+At the bottom:
+
+* Large “Start Session” button
+
+When pressed:
+
+* Begin real-time recording session
+* Navigate to Live Session Screen
+
+4. Live Session Screen
+   This screen performs real-time monitoring.
+
+Requirements:
+
+* Two real-time animated graphs rendered simultaneously on a shared plane:
+
+  * SpO2 graph
+  * Heart Rate graph
+* Background recording of:
+
+  * Temperature
+  * Movement
+* Real-time incoming JSON stream updates the graphs continuously
+* Smooth graph rendering without freezing
+* Session timer
+* Live sensor status indicators
+* Current readings panel
+
+Important:
+When the user attempts to stop the session:
+
+* Show prevention popup:
+  “Are you sure you want to stop the recording session? This prevents accidental touches during sleep.”
+* Buttons:
+
+  * Continue Session
+  * Confirm Stop
+
+After confirmation:
+
+* Stop recording
+* Save all collected data locally/database
+* Navigate to Session Analysis Screen
+
+5. Session Analysis Screen
+   This screen displays detailed analytics for the completed session.
+
+Show:
+
+* Entire recorded timeline
+* Full SpO2 graph
+* Full Heart Rate graph
+* Movement occurrence timestamps
+* Movement event durations
+* REM and Non-REM stage segmentation
+* Temperature variation chart
+* Sleep duration summary
+* Sleep quality analysis
+* AI-generated medical insight placeholder
+* Emergency alert section:
+
+  * “Normal”
+  * “Mild Concern”
+  * “Emergency Detected”
+
+Also include:
+
+* Calendar component showing previous week’s recorded sleep sessions
+* Clicking a date opens summarized sleep analytics
+* Historical trend comparison
+
+Backend/API Requirements:
+Use fake/mock APIs initially.
+
+Example technologies:
+
+* JSON Server
+* Mockoon
+* Firebase
+* Node.js mock API
+* WebSocket mock stream
+
+Example JSON structure:
+{
+"timestamp": "2026-05-27T02:15:00Z",
+"spo2": 97,
+"heart_rate": 74,
+"temperature": 36.7,
+"movement": true,
+"sleep_stage": "REM"
+}
+
+Technical Requirements:
+
+* Clean architecture
+* Reusable widgets/components
+* Real-time WebSocket support preferred
+* SQLite or Hive for local storage
+* Charts package for graph rendering
+* Efficient memory management for long-duration sessions
+* Notification support for emergency conditions
+* Loading states and offline fallback
+
+UI/UX Requirements:
+
+* Modern Apple-level medical UI aesthetic
+* Dark mode with glowing cyan/blue accents
+* Rounded cards
+* Soft shadows
+* Smooth chart animations
+* Responsive layouts
+* Minimal but professional healthcare dashboard appearance
+
+Optional Advanced Features:
+
+* AI prediction placeholder
+* Cloud sync
+* PDF sleep report generation
+* Export session history
+* Multi-user support
+* Voice alerts for emergencies
+* ML confidence score visualization
+
+The codebase should be maintainable and scalable because the fake API will later be replaced by an actual machine learning backend streaming live biomedical sensor data from a wearable band.
