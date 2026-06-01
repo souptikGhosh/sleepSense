@@ -1,3 +1,5 @@
+import { Redirect } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 import { BlurView } from "expo-blur";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
@@ -21,7 +23,7 @@ function NativeTabLayout() {
       </NativeTabs.Trigger>
     </NativeTabs>
   );
-}
+} 
 
 function ClassicTabLayout() {
   const colors = useColors();
@@ -81,6 +83,9 @@ function ClassicTabLayout() {
 }
 
 export default function TabLayout() {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Redirect href="/(auth)/onboarding" />;
+  
   if (isLiquidGlassAvailable()) {
     return <NativeTabLayout />;
   }

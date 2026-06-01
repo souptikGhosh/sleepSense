@@ -22,7 +22,7 @@ const slides = [
     icon: "pulse-outline" as const,
     title: "Medical-Grade\nSleep Monitoring",
     body: "Track SpO2, heart rate, temperature, and movement in real time while you sleep.",
-    color: "#00D4FF",
+    color: "#80cbc4",
   },
   {
     icon: "stats-chart-outline" as const,
@@ -64,7 +64,7 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LinearGradient
-        colors={["#050B18", "#0A1628", "#050B18"]}
+        colors={["#263238", "#2e3d45", "#263238"]}
         style={StyleSheet.absoluteFill}
       />
 

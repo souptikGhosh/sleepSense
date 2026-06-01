@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 export interface SensorReading {
   timestamp: string;
@@ -21,6 +22,7 @@ export interface SessionSummary {
   sleepScore: number;
   remDuration: number;
   nonRemDuration: number;
+  insights: string[];
 }
 
 export interface DailyStats {
@@ -96,14 +98,15 @@ function computeSummary(readings: SensorReading[], id: string): SessionSummary {
   return {
     id,
     date: new Date().toISOString(),
-    duration: readings.length,
+    duration: readings.length, // assuming 1 reading per second
     readings,
     avgSpo2,
     avgHeartRate: avgHr,
     avgTemperature: avgTemp,
     sleepScore: score,
-    remDuration: remReadings,
-    nonRemDuration: nonRemReadings,
+    remDuration: remReadings, // assuming 1 reading per second
+    nonRemDuration: nonRemReadings, // assuming 1 reading per second
+    insights: [],
   };
 }
 
@@ -124,7 +127,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [sessionDuration, setSessionDuration] = useState(0);
   const [completedSession, setCompletedSession] = useState<SessionSummary | null>(null);
   const [savedSessions, setSavedSessions] = useState<SessionSummary[]>([]);
-  const [weeklyStats] = useState<DailyStats[]>(generateWeeklyStats);
+  const [weeklyStats, setWeeklyStats] = useState<DailyStats[]>([]);
   const [deviceConnected, setDeviceConnected] = useState(true);
   const [batteryLevel] = useState(78);
   const [sensorStatus] = useState({ spo2: true, hr: true, temp: true, motion: true });
@@ -134,15 +137,29 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const dataRef = useRef<SensorReading[]>([]);
   const prevReadingRef = useRef<SensorReading | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const stored = await AsyncStorage.getItem("sleepsense_sessions");
-        if (stored) setSavedSessions(JSON.parse(stored));
-      } catch {}
-    };
-    load();
-  }, []);
+  const {user} = useAuth();
+  const sessionKey = user ?`sleepsense_sessions_${user?.id}` : null;
+
+useEffect(() => {
+  const load = async () => {
+    if (!sessionKey) { 
+      setSavedSessions([]); 
+      setWeeklyStats([]);
+      return; 
+    }
+    try {
+      const stored = await AsyncStorage.getItem(sessionKey);
+      if (stored) {
+        setSavedSessions(JSON.parse(stored));
+        setWeeklyStats(generateWeeklyStats());
+      } else {
+        setSavedSessions([]);
+        setWeeklyStats([]);
+      }
+    } catch {}
+  };
+  load();
+}, [sessionKey]);
 
   const startSession = useCallback(() => {
     elapsedRef.current = 0;
@@ -174,12 +191,50 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     const summary = computeSummary(dataRef.current, id);
     setCompletedSession(summary);
 
-    const updated = [summary, ...savedSessions].slice(0, 30);
+    let insights: string[] = [];
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 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",
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          max_tokens: 1000,
+          messages: [{
+            role: "user",
+            content: `You are a clinical sleep analyst. Analyze this sleep session and return exactly 3 insights as a JSON array of strings. Each insight must be unique, specific, and actionable. Vary the focus — one about sleep quality/score, one about a specific metric (SpO2, HR, or temperature), one about REM vs NREM balance. Do not use template sentences. Return ONLY the JSON array, no other text.
+
+            Session:
+            - Duration: ${Math.floor(summary.duration / 60)} minutes
+            - Sleep score: ${summary.sleepScore}/100
+            - Avg SpO2: ${summary.avgSpo2}% (normal: 95-100%)
+            - Avg Heart Rate: ${summary.avgHeartRate} bpm (normal: 48-100)
+            - Avg Temperature: ${summary.avgTemperature}°C (normal: 36.1-37.2°C)
+            - REM: ${Math.floor(summary.remDuration / 60)} min (${Math.round((summary.remDuration / Math.max(summary.duration, 1)) * 100)}% of session)
+            - Non-REM: ${Math.floor(summary.nonRemDuration / 60)} min (${Math.round((summary.nonRemDuration / Math.max(summary.duration, 1)) * 100)}% of session)
+            - Ideal REM proportion: 20-25%`
+          }],
+        }),
+      });
+      const data = await response.json();
+      const text = data.choices?.[0]?.message?.content ?? "[]";
+      const clean = text.replace(/```json|```/g, "").trim();
+      insights = JSON.parse(clean);
+      } catch(e) {
+      insights = ["Couldn't generate insights for this session."];
+    }
+
+    const summaryWithInsights = { ...summary, insights };
+    setCompletedSession(summaryWithInsights);
+
+    const updated = [summaryWithInsights, ...savedSessions].slice(0, 30);
     setSavedSessions(updated);
     try {
-      await AsyncStorage.setItem("sleepsense_sessions", JSON.stringify(updated));
+      if (sessionKey) await AsyncStorage.setItem(sessionKey, JSON.stringify(updated));
     } catch {}
-  }, [savedSessions]);
+  }, [savedSessions, sessionKey]);
 
   const reconnectDevice = useCallback(() => {
     setDeviceConnected(false);

@@ -109,8 +109,7 @@ export default function AnalysisScreen() {
           <View style={[styles.summaryChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Ionicons name="moon-outline" size={14} color={colors.movColor} />
             <Text style={[styles.chipLabel, { color: colors.mutedForeground }]}>REM</Text>
-            <Text style={[styles.chipValue, { color: colors.foreground }]}>{session.remDuration}s</Text>
-          </View>
+            <Text style={[styles.chipValue, { color: colors.foreground }]}>{Math.floor(session.remDuration / 60)}m {session.remDuration % 60}s</Text>          </View>
         </View>
 
         <GlowCard glowColor={alertColor} style={{ marginBottom: 16 }}>
@@ -151,12 +150,11 @@ export default function AnalysisScreen() {
           <View style={styles.stageStats}>
             <View style={styles.stageStat}>
               <View style={[styles.stageDot, { backgroundColor: colors.movColor }]} />
-              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>Non-REM: {session.nonRemDuration}s</Text>
+              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>Non-REM: {Math.floor(session.nonRemDuration / 60)}m {session.nonRemDuration % 60}s</Text>            
             </View>
             <View style={styles.stageStat}>
               <View style={[styles.stageDot, { backgroundColor: colors.primary }]} />
-              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>REM: {session.remDuration}s</Text>
-            </View>
+              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>REM: {Math.floor(session.remDuration / 60)}m {session.remDuration % 60}s</Text>            </View>
           </View>
         </GlowCard>
 
@@ -184,16 +182,14 @@ export default function AnalysisScreen() {
             <Ionicons name="hardware-chip-outline" size={14} color={colors.primary} />
             <Text style={[styles.aiLabel, { color: colors.primary }]}>AI Analysis</Text>
           </View>
-          {[
-            `Average SpO2 of ${session.avgSpo2}% indicates ${session.avgSpo2 >= 95 ? "healthy oxygen saturation" : "mild hypoxia - consult physician"}.`,
-            `Heart rate averaged ${Math.round(session.avgHeartRate)} bpm during sleep, which is ${session.avgHeartRate < 70 ? "within the optimal resting range" : "slightly elevated"}.`,
-            `REM duration represents ${Math.round((session.remDuration / Math.max(session.duration, 1)) * 100)}% of total sleep time. Optimal is 20-25%.`,
-            "Placeholder: ML model will provide personalized clinical recommendations based on wearable sensor patterns.",
-          ].map((insight, i) => (
-            <Text key={i} style={[styles.aiInsight, { color: colors.mutedForeground }]}>• {insight}</Text>
-          ))}
+          {session?.insights?.length > 0 ? (
+            session.insights.map((insight, i) => (
+              <Text key={i} style={[styles.aiInsight, { color: colors.mutedForeground }]}>• {insight}</Text>
+              ))
+              ) : (
+                <Text style={[styles.aiInsight, { color: colors.mutedForeground }]}>No insights available for this session.</Text>
+              )}
         </GlowCard>
-
         <GlowCard noPadding style={{ marginBottom: 16, overflow: "hidden" }}>
           <View style={{ padding: 16, paddingBottom: 12 }}>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Session History</Text>
