@@ -32540,46 +32540,54 @@ function createSessionId() {
 
 // src/routes/ingest.ts
 var router2 = (0, import_express2.Router)();
-function normalizeReadings(readings) {
-  return readings.map((r) => ({
-    ...r,
-    timestamp: r.timestamp instanceof Date ? r.timestamp.toISOString() : r.timestamp
-  }));
+function transformReading(r) {
+  const labelMap = {
+    rem: "REM",
+    normal: "NREM",
+    apnea: "Awake",
+    recovery: "Awake"
+  };
+  return {
+    timestamp: r.timestamp,
+    spo2: r.spo2,
+    heart_rate: r.heart_rate_ppg ?? r.heart_rate ?? 70,
+    temperature: r.temperature ?? 36.7,
+    movement: typeof r.movement === "boolean" ? r.movement : r.movement > 0.05,
+    sleep_stage: labelMap[r.label] ?? "NREM",
+    // extra ML fields preserved
+    hrv_rmssd: r.hrv_rmssd,
+    resp_rate: r.resp_rate,
+    snore_level: r.snore_level,
+    gsr: r.gsr,
+    label: r.label
+  };
 }
 router2.post("/ingest/batch", (req, res) => {
-  const parsed = IngestReadingsBatchBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({
-      error: parsed.error.issues.map((i) => i.message).join("; ")
-    });
+  const body = req.body;
+  if (!body || !body.readings && !Array.isArray(body)) {
+    res.status(400).json({ error: "Expected { sessionId?, readings: [...] } or array of readings" });
     return;
   }
-  const sessionId = parsed.data.sessionId ?? createSessionId();
-  const readings = normalizeReadings(parsed.data.readings);
+  const rawReadings = Array.isArray(body) ? body : body.readings;
+  const sessionId = Array.isArray(body) ? createSessionId() : body.sessionId ?? createSessionId();
+  if (!Array.isArray(rawReadings) || rawReadings.length === 0) {
+    res.status(400).json({ error: "readings must be a non-empty array" });
+    return;
+  }
+  const readings = rawReadings.map(transformReading);
   const totalInSession = appendReadings(sessionId, readings);
-  res.status(201).json({
-    sessionId,
-    accepted: readings.length,
-    totalInSession
-  });
+  res.status(201).json({ sessionId, accepted: readings.length, totalInSession });
 });
 router2.get("/ingest/sessions", (_req, res) => {
-  const data = ListIngestSessionsResponse.parse({ sessions: listSessions() });
-  res.json(data);
+  res.json({ sessions: listSessions() });
 });
 router2.get("/ingest/sessions/:sessionId/readings", (req, res) => {
-  const { sessionId } = req.params;
-  const readings = getReadings(sessionId);
+  const readings = getReadings(req.params.sessionId);
   if (!readings) {
     res.status(404).json({ error: "Session not found" });
     return;
   }
-  const data = GetSessionReadingsResponse.parse({
-    sessionId,
-    count: readings.length,
-    readings
-  });
-  res.json(data);
+  res.json({ sessionId: req.params.sessionId, count: readings.length, readings });
 });
 var ingest_default = router2;
 
