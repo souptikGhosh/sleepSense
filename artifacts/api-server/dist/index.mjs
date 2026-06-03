@@ -26411,7 +26411,7 @@ var require_thread_stream = __commonJS({
 var require_transport = __commonJS({
   "../../node_modules/.pnpm/pino@9.14.0/node_modules/pino/lib/transport.js"(exports, module) {
     "use strict";
-    var { createRequire } = __require("module");
+    var { createRequire: createRequire2 } = __require("module");
     var getCallers = require_caller();
     var { join, isAbsolute, sep } = __require("node:path");
     var sleep = require_atomic_sleep();
@@ -26522,7 +26522,7 @@ var require_transport = __commonJS({
         for (const filePath of callers) {
           try {
             const context = filePath === "node:repl" ? process.cwd() + sep : filePath;
-            fixTarget2 = createRequire(context).resolve(origin);
+            fixTarget2 = createRequire2(context).resolve(origin);
             break;
           } catch (err) {
             continue;
@@ -32516,7 +32516,33 @@ var health_default = router;
 var import_express2 = __toESM(require_express2(), 1);
 
 // src/lib/readingsStore.ts
+import { createRequire } from "module";
+var require2 = createRequire(import.meta.url);
+var seedData = require2("./readings_500.json");
+function transformReading(r) {
+  const labelMap = {
+    rem: "REM",
+    normal: "NREM",
+    apnea: "Awake",
+    recovery: "Awake"
+  };
+  return {
+    timestamp: r.timestamp,
+    spo2: r.spo2,
+    heart_rate: r.heart_rate_ppg ?? r.heart_rate ?? 70,
+    temperature: r.temperature ?? 36.7,
+    movement: typeof r.movement === "boolean" ? r.movement : r.movement > 0.05,
+    sleep_stage: labelMap[r.label] ?? "NREM",
+    hrv_rmssd: r.hrv_rmssd,
+    resp_rate: r.resp_rate,
+    snore_level: r.snore_level,
+    gsr: r.gsr,
+    label: r.label
+  };
+}
 var sessions = /* @__PURE__ */ new Map();
+sessions.set("demo_session", seedData.map(transformReading));
+console.log(`Pre-loaded demo_session with ${sessions.get("demo_session").length} readings`);
 function appendReadings(sessionId, readings) {
   const existing = sessions.get(sessionId) ?? [];
   existing.push(...readings);
@@ -32540,7 +32566,7 @@ function createSessionId() {
 
 // src/routes/ingest.ts
 var router2 = (0, import_express2.Router)();
-function transformReading(r) {
+function transformReading2(r) {
   const labelMap = {
     rem: "REM",
     normal: "NREM",
@@ -32574,7 +32600,7 @@ router2.post("/ingest/batch", (req, res) => {
     res.status(400).json({ error: "readings must be a non-empty array" });
     return;
   }
-  const readings = rawReadings.map(transformReading);
+  const readings = rawReadings.map(transformReading2);
   const totalInSession = appendReadings(sessionId, readings);
   res.status(201).json({ sessionId, accepted: readings.length, totalInSession });
 });
