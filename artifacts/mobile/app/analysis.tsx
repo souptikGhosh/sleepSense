@@ -109,8 +109,9 @@ export default function AnalysisScreen() {
           <View style={[styles.summaryChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Ionicons name="moon-outline" size={14} color={colors.movColor} />
             <Text style={[styles.chipLabel, { color: colors.mutedForeground }]}>REM</Text>
-            <Text style={[styles.chipValue, { color: colors.foreground }]}>{Math.floor(session.remDuration / 60)}m {session.remDuration % 60}s</Text>          </View>
-        </View>
+            <Text style={[styles.chipValue, { color: colors.foreground }]}>{Math.floor(session.remDuration / 60)}m {session.remDuration % 60}s</Text>
+          </View>
+          </View>
 
         <GlowCard glowColor={alertColor} style={{ marginBottom: 16 }}>
           <View style={styles.alertRow}>
@@ -150,12 +151,13 @@ export default function AnalysisScreen() {
           <View style={styles.stageStats}>
             <View style={styles.stageStat}>
               <View style={[styles.stageDot, { backgroundColor: colors.movColor }]} />
-              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>Non-REM: {Math.floor(session.nonRemDuration / 60)}m {session.nonRemDuration % 60}s</Text>            
+              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>Non-REM: {Math.floor(session.nonRemDuration / 60)}m {session.nonRemDuration % 60}s</Text>
             </View>
             <View style={styles.stageStat}>
               <View style={[styles.stageDot, { backgroundColor: colors.primary }]} />
-              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>REM: {Math.floor(session.remDuration / 60)}m {session.remDuration % 60}s</Text>            </View>
-          </View>
+              <Text style={[styles.stageStatLabel, { color: colors.mutedForeground }]}>REM: {Math.floor(session.remDuration / 60)}m {session.remDuration % 60}s</Text>
+            </View>
+            </View>
         </GlowCard>
 
         <GlowCard style={{ marginBottom: 16 }}>

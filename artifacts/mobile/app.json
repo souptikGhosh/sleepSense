@@ -17,7 +17,8 @@
       "supportsTablet": false
     },
     "android": {
-      "backgroundColor": "#050B18"
+      "backgroundColor": "#050B18",
+      "package": "com.souptik.mobile"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -35,6 +36,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b8c22b3a-2f46-46b2-b359-b26bdebf37be"
+      }
     }
   }
 }

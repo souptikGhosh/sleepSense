@@ -20,13 +20,13 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SessionProvider } from "@/context/SessionContext";
 
 SplashScreen.preventAutoHideAsync();
-SystemUI.setBackgroundColorAsync("#263238");
+SystemUI.setBackgroundColorAsync("#1a2a35");
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#263238" }, animation: "fade" }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "##1a2a35" }, animation: "fade" }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />

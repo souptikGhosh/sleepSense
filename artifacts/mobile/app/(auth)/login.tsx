@@ -40,7 +40,7 @@ function Star({ x, y, size, delay, duration }: { x: number; y: number; size: num
   }));
 
   return (
-    <Animated.View style={[{ position: "absolute", left: x, top: y, width: size, height: size, borderRadius: size / 2, backgroundColor: "#c8e6c9" }, style]} />
+    <Animated.View style={[{ position: "absolute", left: x, top: y, width: size, height: size, borderRadius: size / 2, backgroundColor: "#cfd8dc" }, style]} />
   );
 }
 
@@ -117,8 +117,8 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <View style={[styles.container, { backgroundColor: "#263238" }]}>
-        <LinearGradient colors={["#1a2a2e", "#263238", "#2e3d45"]} style={StyleSheet.absoluteFill} />
+      <View style={[styles.container, { backgroundColor: "#1a2a35" }]}>
+        <LinearGradient colors={["#1a2a35", "#1a2a35", "#263238"]} style={StyleSheet.absoluteFill} />
 
         {/* Floating stars */}
         {STARS.map((s) => <Star key={s.id} {...s} />)}
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   topBar: { paddingHorizontal: 20, paddingBottom: 8 },
   content: { flex: 1, paddingHorizontal: 24, paddingTop: 16, gap: 16, alignItems: "center" },
-  moonWrap: { alignItems: "center", justifyContent: "center", shadowColor: "#80cbc4", shadowRadius: 20, shadowOffset: { width: 0, height: 0 } },
+  moonWrap: { alignItems: "center", justifyContent: "center", shadowColor: "#1e88e5", shadowRadius: 20, shadowOffset: { width: 0, height: 0 } },
   moonEmoji: { fontSize: 56 },
   appName: { fontSize: 26, fontFamily: "Inter_700Bold", letterSpacing: 0.5 },
   tagline: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },

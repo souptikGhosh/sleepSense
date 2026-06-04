@@ -119,8 +119,8 @@ export default function ProfileSetup() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#263238" }}>
-      <LinearGradient colors={["#1a2a2e", "#263238", "#2e3d45"]} style={StyleSheet.absoluteFill} />
+    <View style={{ flex: 1, backgroundColor: "#1a2a35" }}>
+      <LinearGradient colors={["#1a2a35", "#1a2a35", "#263238"]} style={StyleSheet.absoluteFill} />
       {STARS.map((s) => <Star key={s.id} {...s} />)}
       <ScrollView style={{ backgroundColor: "transparent" }} contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 24, paddingBottom: 48, gap: 24 }}>
       
