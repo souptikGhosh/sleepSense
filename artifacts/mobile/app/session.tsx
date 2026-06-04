@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
+  BackHandler,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
@@ -42,7 +43,11 @@ export default function SessionScreen() {
 
   useEffect(() => {
     startSession();
-    return () => {};
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      setShowConfirm(true);
+    return true;
+    });
+    return () => backHandler.remove();
   }, []);
 
   const handleStop = async () => {

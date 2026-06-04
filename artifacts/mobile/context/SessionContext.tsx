@@ -2,6 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
 
+const BACKEND_URL = "https://sleepsense-bgal.onrender.com";
+const DEMO_SESSION_ID = "demo_session";
+
 export interface SensorReading {
   timestamp: string;
   spo2: number;
@@ -162,14 +165,37 @@ useEffect(() => {
 }, [sessionKey]);
 
   const startSession = useCallback(() => {
-    elapsedRef.current = 0;
-    dataRef.current = [];
-    prevReadingRef.current = null;
-    setSessionData([]);
-    setSessionDuration(0);
-    setIsSessionActive(true);
+  elapsedRef.current = 0;
+  dataRef.current = [];
+  prevReadingRef.current = null;
+  setSessionData([]);
+  setSessionDuration(0);
+  setIsSessionActive(true);
 
-    intervalRef.current = setInterval(() => {
+  let readingIndex = 0;
+  let allReadings: SensorReading[] = [];
+
+  // Fetch all readings once upfront
+  fetch(`${BACKEND_URL}/api/ingest/sessions/${DEMO_SESSION_ID}/readings`)
+    .then((res) => res.json())
+    .then((json) => {
+      allReadings = json.readings ?? [];
+    })
+    .catch(() => {
+      console.log("Backend unreachable, using mock data");
+    });
+
+  intervalRef.current = setInterval(() => {
+    if (allReadings.length > 0 && readingIndex < allReadings.length) {
+      const reading = allReadings[readingIndex];
+      readingIndex++;
+      prevReadingRef.current = reading;
+      dataRef.current = [...dataRef.current, reading];
+      setSessionData((prev) => [...prev, reading]);
+      setCurrentReading(reading);
+      setSessionDuration(readingIndex);
+    } else if (allReadings.length === 0) {
+      // fallback mock
       elapsedRef.current += 1;
       const reading = generateReading(prevReadingRef.current, elapsedRef.current);
       prevReadingRef.current = reading;
@@ -177,8 +203,9 @@ useEffect(() => {
       setSessionData((prev) => [...prev, reading]);
       setCurrentReading(reading);
       setSessionDuration(elapsedRef.current);
-    }, 1000);
-  }, []);
+    }
+  }, 1000);
+}, []);
 
   const stopSession = useCallback(async () => {
     if (intervalRef.current) {

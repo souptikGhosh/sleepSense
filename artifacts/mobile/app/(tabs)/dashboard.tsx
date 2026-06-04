@@ -1,3 +1,4 @@
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, withDelay, withSpring, Easing} from "react-native-reanimated";
 import React, { useState } from "react";
 import {
   View,
@@ -24,6 +25,19 @@ const { width: SW } = Dimensions.get("window");
 type Timeframe = "daily" | "weekly";
 
 export default function DashboardScreen() {
+  const overlayOpacity = useSharedValue(0);
+  const moonScale = useSharedValue(0.3);
+  const textOpacity = useSharedValue(0);
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+  }));
+  const moonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: moonScale.value }],
+  }));
+  const textStyle = useAnimatedStyle(() => ({
+    opacity: textOpacity.value,
+  }));
+  const [showGoodnight, setShowGoodnight] = useState(false);
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -88,7 +102,19 @@ export default function DashboardScreen() {
 
   const handleStart = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    router.push("/session");
+    setShowGoodnight(true);
+    overlayOpacity.value = withTiming(1, { duration: 600, easing: Easing.inOut(Easing.ease) });
+    moonScale.value = withDelay(300, withSpring(1, { damping: 12, stiffness: 100 }));
+    textOpacity.value = withDelay(600, withTiming(1, { duration: 400 }));
+    setTimeout(() => {
+      router.push("/session");
+      setTimeout(() => {
+       setShowGoodnight(false);
+       overlayOpacity.value = 0;
+       moonScale.value = 0.3;
+       textOpacity.value = 0;
+      }, 500);
+    }, 2000);
   };
 
   const scoreColor = sleepScore >= 80 ? colors.success : sleepScore >= 60 ? colors.warning : colors.danger;
@@ -242,7 +268,7 @@ export default function DashboardScreen() {
         </GlowCard>
       </ScrollView>
 
-      <View style={[styles.startWrap, { paddingBottom: bottomInset + 74, backgroundColor: colors.background }]}>
+      <View style={[styles.startWrap, { paddingBottom: bottomInset + 74, backgroundColor: colors.background }]}>     
         <LinearGradient
           colors={["transparent", colors.background]}
           style={StyleSheet.absoluteFill}
@@ -253,6 +279,13 @@ export default function DashboardScreen() {
           <Text style={[styles.startText, { color: colors.background }]}>Start Session</Text>
         </TouchableOpacity>
       </View>
+         {showGoodnight && (
+          <Animated.View style={[styles.goodnightOverlay, overlayStyle]}>
+            <Animated.Text style={[styles.goodnightMoon, moonStyle]}>🌙</Animated.Text>
+            <Animated.Text style={[styles.goodnightText, textStyle]}>Good Night!</Animated.Text>
+            <Animated.Text style={[styles.goodnightSub, textStyle]}>Starting your sleep session...</Animated.Text>
+          </Animated.View>
+        )}
     </View>
   );
 }
@@ -305,5 +338,34 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 16,
   },
+  goodnightOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(38,50,56,0.97)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 999,
+  },
+  goodnightMoon: { 
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  goodnightText: { fontSize: 28, fontFamily: "Inter_700Bold", color: "#e8f5e9", marginBottom: 8 },
+  goodnightSub: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#80cbc4" },
   startText: { fontSize: 17, fontFamily: "Inter_700Bold" },
+  goodnightPopup: {
+    position: "absolute",
+    top: -60, 
+    alignSelf: "center",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,        
+  },
 });
+

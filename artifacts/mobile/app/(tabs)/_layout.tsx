@@ -17,18 +17,20 @@ function NativeTabLayout() {
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="scan">
+        <Icon sf={{ default: "camera", selected: "camera.fill" }} />
+        <Label>Scan</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Icon sf={{ default: "person.circle", selected: "person.circle.fill" }} />
         <Label>Profile</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
-} 
+}
 
 function ClassicTabLayout() {
   const colors = useColors();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
 
@@ -67,6 +69,15 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="scan"
+        options={{
+          title: "Scan",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="camera-outline" size={22} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
@@ -78,6 +89,7 @@ function ClassicTabLayout() {
             ),
         }}
       />
+      <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
 }
@@ -85,7 +97,7 @@ function ClassicTabLayout() {
 export default function TabLayout() {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Redirect href="/(auth)/onboarding" />;
-  
+
   if (isLiquidGlassAvailable()) {
     return <NativeTabLayout />;
   }
